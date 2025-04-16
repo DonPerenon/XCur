@@ -10,7 +10,7 @@ import Foundation
 
 // модель для информации о валюте
 
-struct CurrencyRate: Identifiable, Codable {
+struct CurrencyRate: Identifiable, Codable, Equatable {
     var id: String { code }
     
     let code: String // usd, rub
