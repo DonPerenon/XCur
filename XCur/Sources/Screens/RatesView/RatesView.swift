@@ -81,3 +81,7 @@ struct RatesView: View {
         }
     }
 }
+
+#Preview {
+    RatesView()
+}
