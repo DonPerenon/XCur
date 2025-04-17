@@ -31,6 +31,8 @@ extension CurrencyService {
                 .sorted { $0.code < $1.code }
         },
         convert: { from, to, amount in
+            try await Task.sleep(nanoseconds: 1_500_000_000) // искусственно замедляю запрос, чтобы полюбоваться шиммером в ConvertView:)
+            
             let url = URL(string: "https://open.er-api.com/v6/latest/\(from)")!
             let (data, _) = try await URLSession.shared.data(from: url)
             let decoded = try JSONDecoder().decode(CurrencyRatesResponse.self, from: data)

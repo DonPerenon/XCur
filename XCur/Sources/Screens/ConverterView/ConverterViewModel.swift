@@ -5,7 +5,7 @@
 //  Created by Виктор Иванов on 17.04.2025.
 //
 
-import Foundation
+import SwiftUI
 
 @MainActor
 final class ConverterViewModel: ViewModel {
@@ -15,6 +15,11 @@ final class ConverterViewModel: ViewModel {
         case setFromCurrency(String)
         case setToCurrency(String)
         case convert
+        case openFromList(Bool)
+        case openToList(Bool)
+        case triggerCopyFeedback
+        case loadCurrencies
+        case didLoadCurrencies([String])
     }
 
     @Published var state: ConverterViewState = .initial
@@ -28,16 +33,48 @@ final class ConverterViewModel: ViewModel {
     func handle(action: Action) {
         switch action {
         case .setAmount(let value):
-            state.amount = value
+            withAnimation(.easeInOut) {
+                state.amount = value
+                state.result = nil
+            }
 
         case .setFromCurrency(let value):
-            state.fromCurrency = value
+            withAnimation(.easeInOut) {
+                state.fromCurrency = value
+                state.result = nil
+            }
 
         case .setToCurrency(let value):
-            state.toCurrency = value
+            withAnimation(.easeInOut) {
+                state.toCurrency = value
+                state.result = nil
+            }
 
         case .convert:
             Task { await convert() }
+            
+        case .openFromList(let flag):
+            state.isSelectingFrom = flag
+
+        case .openToList(let flag):
+            state.isSelectingTo = flag
+            
+        case .triggerCopyFeedback:
+            triggerCopyFeedback()
+            
+        case .loadCurrencies:
+               Task {
+                   do {
+                       let rates = try await service.fetchRates("USD")
+                       let codes = rates.map(\.code).sorted()
+                       handle(action: .didLoadCurrencies(codes))
+                   } catch {
+                       state.errorMessage = error.localizedDescription
+                   }
+               }
+
+           case .didLoadCurrencies(let codes):
+               state.availableCurrencies = codes
         }
     }
 
@@ -64,5 +101,10 @@ final class ConverterViewModel: ViewModel {
         }
 
         state.isLoading = false
+    }
+    
+    private func triggerCopyFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
     }
 }
