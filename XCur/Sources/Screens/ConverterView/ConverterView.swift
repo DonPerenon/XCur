@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ConverterView: View {
-    @StateObject private var viewModel = ConverterViewModel()
+    @StateObject var viewModel: ConverterViewModel
     
     private let availableCurrencies = ["USD", "EUR", "JPY", "RUB"]
     
@@ -235,5 +235,5 @@ struct ConverterView: View {
 }
 
 #Preview {
-    ConverterView()
+    ConverterView(viewModel: ConverterViewModel(service: .live))
 }

@@ -15,6 +15,7 @@ struct CurrencyService {
 extension CurrencyService {
     static let live = CurrencyService(
         fetchRates: { base in
+            try await Task.sleep(nanoseconds: 1_500_000_000)
             let urlString = "https://open.er-api.com/v6/latest/\(base)"
             guard let url = URL(string: urlString) else {
                 throw URLError(.badURL)

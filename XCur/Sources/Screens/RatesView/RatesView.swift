@@ -8,80 +8,69 @@
 import SwiftUI
 
 struct RatesView: View {
-    @StateObject private var viewModel = RatesViewModel()
+    @StateObject var viewModel: RatesViewModel
 
     var body: some View {
         NavigationView {
-            content
-                .navigationTitle("Rates")
-                .onAppear {
-                    viewModel.handle(action: .loadRates)
-                }
+            VStack {
+                content
+            }
+            .navigationTitle("Rates")
+            .onAppear {
+                viewModel.handle(action: .loadRates)
+            }
         }
     }
-
-    // MARK: - Main content switcher
 
     @ViewBuilder
     private var content: some View {
-        switchContent(
-            isLoading: viewModel.state.isLoading,
-            errorMessage: viewModel.state.errorMessage,
-            rates: viewModel.state.rates
-        )
-    }
-
-    // MARK: - Switch by state
-
-    @ViewBuilder
-    private func switchContent(
-        isLoading: Bool,
-        errorMessage: String?,
-        rates: [CurrencyRate]
-    ) -> some View {
-        if isLoading {
+        if viewModel.state.isLoading {
             loadingView
-        } else if let error = errorMessage {
+        } else if let error = viewModel.state.errorMessage {
             errorView(message: error)
         } else {
-            ratesList(rates: rates)
+            ratesList
         }
     }
-
-    // MARK: - Subviews
 
     private var loadingView: some View {
         VStack {
-            Spacer()
-            ProgressView("Loading rates...")
+            ShimmerView()
+                .padding()
             Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
 
     private func errorView(message: String) -> some View {
         VStack {
             Spacer()
+            Text("Error")
+                .font(.caption)
+                .foregroundColor(.secondary)
             Text(message)
                 .foregroundColor(.red)
                 .multilineTextAlignment(.center)
-                .padding()
+                .padding(.horizontal)
             Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
-
-    private func ratesList(rates: [CurrencyRate]) -> some View {
-        List(rates) { rate in
+    
+    private var ratesList: some View {
+        List(viewModel.state.rates) { rate in
             HStack {
                 Text(rate.code)
-                    .font(.headline)
+                    .font(.title3).bold()
                 Spacer()
                 Text(String(format: "%.2f", rate.rate))
-                    .font(.subheadline)
+                    .font(.title3)
             }
+            .padding(.vertical, 7)
         }
     }
 }
 
 #Preview {
-    RatesView()
+    RatesView(viewModel: RatesViewModel(service: .live))
 }

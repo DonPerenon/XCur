@@ -13,6 +13,7 @@ final class RatesViewModel: ViewModel {
     @Published var state: RatesViewState = .initial
 
     private let service: CurrencyService
+    private var hasLoadedOnce = false
 
     init(service: CurrencyService = .live) {
         self.service = service
@@ -21,6 +22,8 @@ final class RatesViewModel: ViewModel {
     func handle(action: Action) {
         switch action {
         case .loadRates:
+            guard !hasLoadedOnce else { return }
+            hasLoadedOnce = true
             Task { await loadRates() }
 
         case .updateBaseCurrency(let newBase):
