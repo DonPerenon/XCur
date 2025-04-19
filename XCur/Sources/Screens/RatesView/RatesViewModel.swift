@@ -42,6 +42,10 @@ final class RatesViewModel: ViewModel {
             
         case .setBaseCurrencySelectorPresented(let isPresented):
             state.isSelectingBaseCurrency = isPresented
+            
+        case .setSortOption(let option):
+            state.sortOption = option
+            updateFilteredRates()
         }
     }
 
@@ -61,13 +65,24 @@ final class RatesViewModel: ViewModel {
     }
     
     private func updateFilteredRates() {
-        if state.searchQuery.isEmpty {
-            state.filteredRates = state.rates
-        } else {
-            state.filteredRates = state.rates.filter {
+        var filtered = state.rates
+
+        if !state.searchQuery.isEmpty {
+            filtered = filtered.filter {
                 $0.code.lowercased().contains(state.searchQuery.lowercased())
             }
         }
+
+        switch state.sortOption {
+        case .alphabetically:
+            filtered.sort { $0.code < $1.code }
+        case .rateAsc:
+            filtered.sort { $0.rate < $1.rate }
+        case .rateDesc:
+            filtered.sort { $0.rate > $1.rate }
+        }
+
+        state.filteredRates = filtered
     }
     
     enum Action: Equatable {
@@ -76,5 +91,29 @@ final class RatesViewModel: ViewModel {
         case setSearchQuery(String)
         case selectBaseCurrency(String)
         case setBaseCurrencySelectorPresented(Bool)
+        case setSortOption(RatesSortOption)
     }
 }
+
+enum RatesSortOption: String, CaseIterable, Equatable {
+    case alphabetically
+    case rateAsc
+    case rateDesc
+
+    var label: String {
+        switch self {
+        case .alphabetically: "A-Z"
+        case .rateAsc: "Price ↑"
+        case .rateDesc: "Price ↓"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .alphabetically: "textformat.abc"
+        case .rateAsc: "arrow.up"
+        case .rateDesc: "arrow.down"
+        }
+    }
+}
+

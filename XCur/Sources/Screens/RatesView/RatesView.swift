@@ -13,6 +13,9 @@ struct RatesView: View {
     var body: some View {
         NavigationView {
             VStack {
+                filterPicker
+                    .padding(.vertical, 10)
+                
                 content
             }
             .navigationTitle("Rates")
@@ -21,11 +24,12 @@ struct RatesView: View {
                 set: { viewModel.handle(action: .setSearchQuery($0)) }
             ))
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         viewModel.handle(action: .setBaseCurrencySelectorPresented(true))
                     }) {
                         HStack(spacing: 4) {
+                            Text("Base:")
                             Text(viewModel.state.baseCurrency)
                             Image(systemName: "chevron.down")
                                 .font(.caption)
@@ -85,6 +89,20 @@ struct RatesView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity)
+    }
+    
+    private var filterPicker: some View {
+        Picker("", selection: Binding(
+            get: { viewModel.state.sortOption },
+            set: { viewModel.handle(action: .setSortOption($0)) }
+        )) {
+            ForEach(RatesSortOption.allCases, id: \.self) { option in
+                Label(option.label, systemImage: option.iconName)
+                    .tag(option)
+            }
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 240)
     }
     
     private var ratesList: some View {

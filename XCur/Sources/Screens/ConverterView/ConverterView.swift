@@ -13,18 +13,25 @@ struct ConverterView: View {
     private let availableCurrencies = ["USD", "EUR", "JPY", "RUB"]
     
     var body: some View {
-        VStack(spacing: 24) {
-            title
-
-            amountInput
-
-            currencySelectors
-
-            convertButton
-
-            resultView
-
-            Spacer()
+        ZStack {
+            Color.clear // чтобы тап ловился
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    UIApplication.shared.endEditing()
+                }
+            VStack(spacing: 24) {
+                title
+                
+                amountInput
+                
+                currencySelectors
+                
+                convertButton
+                
+                resultView
+                
+                Spacer()
+            }
         }
         .padding()
         .background(Color(.systemGroupedBackground))

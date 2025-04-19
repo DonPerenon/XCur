@@ -34,6 +34,7 @@ final class ConverterViewModel: ViewModel {
         switch action {
         case .setAmount(let value):
             withAnimation(.easeInOut) {
+                guard state.amount != value else { return }
                 state.amount = value
                 state.result = nil
             }

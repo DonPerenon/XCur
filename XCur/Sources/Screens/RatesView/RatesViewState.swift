@@ -18,6 +18,7 @@ struct RatesViewState: Equatable {
     var searchQuery: String
     var baseCurrencyOptions: [String]
     var isSelectingBaseCurrency: Bool
+    var sortOption: RatesSortOption
 }
 
 extension RatesViewState {
@@ -30,7 +31,8 @@ extension RatesViewState {
             errorMessage: nil,
             searchQuery: "",
             baseCurrencyOptions: ["USD", "EUR", "JPY", "RUB", "CNY", "GBP"],
-            isSelectingBaseCurrency: false
+            isSelectingBaseCurrency: false,
+            sortOption: .alphabetically
         )
     }
 }
