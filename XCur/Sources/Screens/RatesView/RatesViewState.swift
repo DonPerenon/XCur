@@ -7,11 +7,17 @@
 
 import Foundation
 
+import Foundation
+
 struct RatesViewState: Equatable {
     var isLoading: Bool
     var baseCurrency: String
     var rates: [CurrencyRate]
+    var filteredRates: [CurrencyRate]
     var errorMessage: String?
+    var searchQuery: String
+    var baseCurrencyOptions: [String]
+    var isSelectingBaseCurrency: Bool
 }
 
 extension RatesViewState {
@@ -20,7 +26,13 @@ extension RatesViewState {
             isLoading: false,
             baseCurrency: "USD",
             rates: [],
-            errorMessage: nil
+            filteredRates: [],
+            errorMessage: nil,
+            searchQuery: "",
+            baseCurrencyOptions: ["USD", "EUR", "JPY", "RUB", "CNY", "GBP"],
+            isSelectingBaseCurrency: false
         )
     }
 }
+
+

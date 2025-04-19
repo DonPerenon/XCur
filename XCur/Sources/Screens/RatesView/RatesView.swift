@@ -16,8 +16,38 @@ struct RatesView: View {
                 content
             }
             .navigationTitle("Rates")
+            .searchable(text: Binding(
+                get: { viewModel.state.searchQuery },
+                set: { viewModel.handle(action: .setSearchQuery($0)) }
+            ))
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        viewModel.handle(action: .setBaseCurrencySelectorPresented(true))
+                    }) {
+                        HStack(spacing: 4) {
+                            Text(viewModel.state.baseCurrency)
+                            Image(systemName: "chevron.down")
+                                .font(.caption)
+                        }
+                    }
+                }
+            }
             .onAppear {
                 viewModel.handle(action: .loadRates)
+            }
+            .sheet(isPresented: Binding(
+                get: { viewModel.state.isSelectingBaseCurrency },
+                set: { viewModel.handle(action: .setBaseCurrencySelectorPresented($0)) }
+            )) {
+                CurrencySelectionView(
+                    title: "Select base currency",
+                    currencies: viewModel.state.rates.map(\.code),
+                    onSelect: { code in
+                        viewModel.handle(action: .selectBaseCurrency(code))
+                        viewModel.handle(action: .setBaseCurrencySelectorPresented(false))
+                    }
+                )
             }
         }
     }
@@ -58,7 +88,7 @@ struct RatesView: View {
     }
     
     private var ratesList: some View {
-        List(viewModel.state.rates) { rate in
+        List(viewModel.state.filteredRates) { rate in
             HStack {
                 Text(rate.code)
                     .font(.title3).bold()
@@ -72,5 +102,5 @@ struct RatesView: View {
 }
 
 #Preview {
-    RatesView(viewModel: RatesViewModel(service: .live))
+    RatesView(viewModel: RatesViewModel(service: .mock))
 }

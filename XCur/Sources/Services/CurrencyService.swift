@@ -51,7 +51,7 @@ extension CurrencyService {
     
     static let mock = CurrencyService(
         fetchRates: { base in
-            try await Task.sleep(nanoseconds: 300_000_000)
+            try await Task.sleep(nanoseconds: 1_500_000_000)
             return [
                 CurrencyRate(code: "EUR", rate: 0.91),
                 CurrencyRate(code: "JPY", rate: 134.2),
@@ -60,7 +60,7 @@ extension CurrencyService {
             ].sorted { $0.code < $1.code }
         },
         convert: { from, to, amount in
-            try await Task.sleep(nanoseconds: 200_000_000)
+            try await Task.sleep(nanoseconds: 1_500_000_000)
             return amount * 0.91 // magic numbers - это плохо, но с моками можно творить все, что хочется)))
         }
     )

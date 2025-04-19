@@ -235,5 +235,5 @@ struct ConverterView: View {
 }
 
 #Preview {
-    ConverterView(viewModel: ConverterViewModel(service: .live))
+    ConverterView(viewModel: ConverterViewModel(service: .mock))
 }

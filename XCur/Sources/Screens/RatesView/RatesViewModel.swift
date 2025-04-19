@@ -29,6 +29,19 @@ final class RatesViewModel: ViewModel {
         case .updateBaseCurrency(let newBase):
             state.baseCurrency = newBase
             handle(action: .loadRates)
+            
+        case .setSearchQuery(let query):
+            state.searchQuery = query
+            updateFilteredRates()
+
+        case .selectBaseCurrency(let newBase):
+            state.baseCurrency = newBase
+            state.rates = []
+            hasLoadedOnce = false
+            handle(action: .loadRates)
+            
+        case .setBaseCurrencySelectorPresented(let isPresented):
+            state.isSelectingBaseCurrency = isPresented
         }
     }
 
@@ -39,6 +52,7 @@ final class RatesViewModel: ViewModel {
         do {
             let fetched = try await service.fetchRates(state.baseCurrency)
             state.rates = fetched
+            updateFilteredRates()
         } catch {
             state.errorMessage = error.localizedDescription
         }
@@ -46,8 +60,21 @@ final class RatesViewModel: ViewModel {
         state.isLoading = false
     }
     
+    private func updateFilteredRates() {
+        if state.searchQuery.isEmpty {
+            state.filteredRates = state.rates
+        } else {
+            state.filteredRates = state.rates.filter {
+                $0.code.lowercased().contains(state.searchQuery.lowercased())
+            }
+        }
+    }
+    
     enum Action: Equatable {
         case loadRates
         case updateBaseCurrency(String)
+        case setSearchQuery(String)
+        case selectBaseCurrency(String)
+        case setBaseCurrencySelectorPresented(Bool)
     }
 }
