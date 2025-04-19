@@ -4,7 +4,7 @@ import SwiftUI
 struct XCurApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
         }
     }
 }

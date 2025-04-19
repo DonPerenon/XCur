@@ -9,7 +9,19 @@ import SwiftUI
 
 struct MainTabView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        TabView {
+            let ratesViewModel = RatesViewModel(service: CurrencyService.live)
+            RatesView(viewModel: ratesViewModel)
+                .tabItem {
+                    Label("Rates", systemImage: "list.bullet.rectangle")
+                }
+
+            let converterViewModel = ConverterViewModel(service: CurrencyService.live)
+            ConverterView(viewModel: converterViewModel)
+                .tabItem {
+                    Label("Convert", systemImage: "arrow.2.squarepath")
+                }
+        }
     }
 }
 
