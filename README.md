@@ -39,8 +39,10 @@
 ---
 
 ## 🖼 Скриншоты
+| Rates | Convert |
+|-------|---------|
+| ![](screenshots/rates.png) | ![](screenshots/currency.png) |
 
-| ![Rates Screenshot](screenshots/rates.png) | ![Convert Screenshot](screenshots/convert.png) |
 
 ---
 
