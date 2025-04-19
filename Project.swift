@@ -18,7 +18,9 @@ let project = Project(
             ),
             sources: ["XCur/Sources/**"],
             resources: ["XCur/Resources/**"],
-            dependencies: []
+            dependencies: [
+                .package(product: "SwiftNumberPad")
+            ]
         ),
         .target(
             name: "XCurTests",

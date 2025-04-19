@@ -8,80 +8,117 @@
 import SwiftUI
 
 struct RatesView: View {
-    @StateObject private var viewModel = RatesViewModel()
+    @StateObject var viewModel: RatesViewModel
 
     var body: some View {
         NavigationView {
-            content
-                .navigationTitle("Rates")
-                .onAppear {
-                    viewModel.handle(action: .loadRates)
+            VStack {
+                filterPicker
+                    .padding(.vertical, 10)
+                
+                content
+            }
+            .navigationTitle("Rates")
+            .searchable(text: Binding(
+                get: { viewModel.state.searchQuery },
+                set: { viewModel.handle(action: .setSearchQuery($0)) }
+            ))
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        viewModel.handle(action: .setBaseCurrencySelectorPresented(true))
+                    }) {
+                        HStack(spacing: 4) {
+                            Text("Base:")
+                            Text(viewModel.state.baseCurrency)
+                            Image(systemName: "chevron.down")
+                                .font(.caption)
+                        }
+                    }
                 }
+            }
+            .onAppear {
+                viewModel.handle(action: .loadRates)
+            }
+            .sheet(isPresented: Binding(
+                get: { viewModel.state.isSelectingBaseCurrency },
+                set: { viewModel.handle(action: .setBaseCurrencySelectorPresented($0)) }
+            )) {
+                CurrencySelectionView(
+                    title: "Select base currency",
+                    currencies: viewModel.state.rates.map(\.code),
+                    onSelect: { code in
+                        viewModel.handle(action: .selectBaseCurrency(code))
+                        viewModel.handle(action: .setBaseCurrencySelectorPresented(false))
+                    }
+                )
+            }
         }
     }
-
-    // MARK: - Main content switcher
 
     @ViewBuilder
     private var content: some View {
-        switchContent(
-            isLoading: viewModel.state.isLoading,
-            errorMessage: viewModel.state.errorMessage,
-            rates: viewModel.state.rates
-        )
-    }
-
-    // MARK: - Switch by state
-
-    @ViewBuilder
-    private func switchContent(
-        isLoading: Bool,
-        errorMessage: String?,
-        rates: [CurrencyRate]
-    ) -> some View {
-        if isLoading {
+        if viewModel.state.isLoading {
             loadingView
-        } else if let error = errorMessage {
+        } else if let error = viewModel.state.errorMessage {
             errorView(message: error)
         } else {
-            ratesList(rates: rates)
+            ratesList
         }
     }
-
-    // MARK: - Subviews
 
     private var loadingView: some View {
         VStack {
-            Spacer()
-            ProgressView("Loading rates...")
+            ShimmerView()
+                .padding()
             Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
 
     private func errorView(message: String) -> some View {
         VStack {
             Spacer()
+            Text("Error")
+                .font(.caption)
+                .foregroundColor(.secondary)
             Text(message)
                 .foregroundColor(.red)
                 .multilineTextAlignment(.center)
-                .padding()
+                .padding(.horizontal)
             Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
-
-    private func ratesList(rates: [CurrencyRate]) -> some View {
-        List(rates) { rate in
+    
+    private var filterPicker: some View {
+        Picker("", selection: Binding(
+            get: { viewModel.state.sortOption },
+            set: { viewModel.handle(action: .setSortOption($0)) }
+        )) {
+            ForEach(RatesSortOption.allCases, id: \.self) { option in
+                Label(option.label, systemImage: option.iconName)
+                    .tag(option)
+            }
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 240)
+    }
+    
+    private var ratesList: some View {
+        List(viewModel.state.filteredRates) { rate in
             HStack {
                 Text(rate.code)
-                    .font(.headline)
+                    .font(.title3).bold()
                 Spacer()
                 Text(String(format: "%.2f", rate.rate))
-                    .font(.subheadline)
+                    .font(.title3)
             }
+            .padding(.vertical, 7)
         }
     }
 }
 
 #Preview {
-    RatesView()
+    RatesView(viewModel: RatesViewModel(service: .mock))
 }
