@@ -83,8 +83,9 @@ final class ConverterViewModel: ViewModel {
         state.isLoading = true
         state.errorMessage = nil
         state.result = nil
-
-        guard let amount = Double(state.amount) else {
+        
+        let normalized = state.amount.withDotDecimalSeparator
+        guard let amount = Double(normalized) else {
             state.errorMessage = "Invalid amount"
             state.isLoading = false
             return
